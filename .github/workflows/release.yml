@@ -40,7 +40,7 @@ jobs:
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
       - name: Upload to Chrome Web Store
-        if: ${{ secrets.CHROME_CLIENT_ID != '' }}
+        if: secrets.CHROME_CLIENT_ID != ''
         env:
           CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
