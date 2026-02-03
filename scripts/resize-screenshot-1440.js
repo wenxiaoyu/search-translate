@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const inputPath = join(__dirname, '../images/screenshot-1440-560.png');
-const outputPath = join(__dirname, '../images/screenshot-1440-560-resized.png');
+const outputPath = join(__dirname, '../images/screenshot-1400-560.png');
 
 async function resizeImage() {
   try {
@@ -14,17 +14,17 @@ async function resizeImage() {
     const metadata = await sharp(inputPath).metadata();
     console.log(`Current size: ${metadata.width}x${metadata.height}`);
     
-    console.log('Resizing to exactly 1440x560...');
+    console.log('Resizing to exactly 1400x560...');
     
     await sharp(inputPath)
-      .resize(1440, 560, {
+      .resize(1400, 560, {
         fit: 'fill',
         kernel: sharp.kernel.lanczos3
       })
       .png()
       .toFile(outputPath);
     
-    console.log('✅ Successfully resized to 1440x560');
+    console.log('✅ Successfully resized to 1400x560');
     console.log(`Output: ${outputPath}`);
     
     // Verify the output
