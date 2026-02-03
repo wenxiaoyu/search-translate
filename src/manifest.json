@@ -1,19 +1,20 @@
 {
   "manifest_version": 3,
-  "name": "Demumu Chrome Extension",
-  "version": "0.1.1",
-  "description": "A modern Chrome extension built with TypeScript and React",
+  "name": "Search Translate",
+  "version": "0.2.0",
+  "description": "Real-time translation suggestions for search engines - translate Chinese to English for better search results",
+  "author": "Your Name",
   "icons": {
-    "16": "icons/icon-16.svg",
-    "48": "icons/icon-48.svg",
-    "128": "icons/icon-128.svg"
+    "16": "icons/icon-16.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
   "action": {
     "default_popup": "src/popup/index.html",
     "default_icon": {
-      "16": "icons/icon-16.svg",
-      "48": "icons/icon-48.svg",
-      "128": "icons/icon-128.svg"
+      "16": "icons/icon-16.png",
+      "48": "icons/icon-48.png",
+      "128": "icons/icon-128.png"
     }
   },
   "background": {
@@ -22,11 +23,33 @@
   },
   "content_scripts": [
     {
-      "matches": ["<all_urls>"],
-      "js": ["src/content/index.ts"]
+      "matches": [
+        "*://*.google.com/*",
+        "*://*.google.com.hk/*",
+        "*://*.baidu.com/*",
+        "*://*.bing.com/*",
+        "*://github.com/*",
+        "*://*.stackoverflow.com/*",
+        "*://*.stackexchange.com/*"
+      ],
+      "js": ["src/content/index.ts"],
+      "run_at": "document_end"
     }
   ],
   "options_page": "src/options/index.html",
-  "permissions": ["storage", "tabs"],
-  "host_permissions": ["<all_urls>"]
+  "permissions": ["storage"],
+  "host_permissions": [
+    "*://*.google.com/*",
+    "*://*.google.com.hk/*",
+    "*://*.baidu.com/*",
+    "*://*.bing.com/*",
+    "*://github.com/*",
+    "*://*.stackoverflow.com/*",
+    "*://*.stackexchange.com/*",
+    "https://api.mymemory.translated.net/*",
+    "https://fanyi.baidu.com/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  }
 }

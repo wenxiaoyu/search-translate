@@ -1,13 +1,119 @@
 // Content Script - runs in the context of web pages
-console.log('Demumu content script loaded on:', window.location.href)
+import { AdapterFactory } from './adapters/AdapterFactory';
+import { TranslationManager } from './TranslationManager';
 
+let translationManager: TranslationManager | null = null;
+let isInitializing = false; // 防止并发初始化
+
+/**
+ * 初始化翻译功能
+ */
+function initTranslation() {
+  // 防止并发初始化
+  if (isInitializing) {
+    return;
+  }
+  
+  isInitializing = true;
+  
+  try {
+    // 检查是否支持当前网站
+    const adapter = AdapterFactory.getAdapter();
+    if (!adapter) {
+      return;
+    }
+
+    // 创建翻译管理器
+    translationManager = new TranslationManager(adapter);
+    translationManager.init();
+  } finally {
+    isInitializing = false;
+  }
+}
+
+/**
+ * 使用 MutationObserver 监听动态加载的搜索框
+ * 持续监听，支持 SPA 页面导航
+ */
+function observeSearchInput() {
+  const adapter = AdapterFactory.getAdapter();
+  if (!adapter) return;
+
+  let checkTimer: number | null = null;
+  let lastInput: HTMLInputElement | null = null;
+  let lastVisible: boolean = false;
+
+  const observer = new MutationObserver(() => {
+    // 使用防抖避免频繁检查
+    if (checkTimer) {
+      clearTimeout(checkTimer);
+    }
+
+    checkTimer = window.setTimeout(() => {
+      const input = adapter.getSearchInput();
+      const isVisible = input ? input.offsetParent !== null : false;
+      
+      // 检查搜索框是否变化（元素变化或可见性变化）
+      if (input && (input !== lastInput || isVisible !== lastVisible)) {
+        // 清理旧实例
+        if (translationManager) {
+          translationManager.destroy();
+          translationManager = null;
+        }
+        
+        // 重新初始化
+        lastInput = input;
+        lastVisible = isVisible;
+        initTranslation();
+      } else if (!input && translationManager) {
+        // 搜索框消失了（页面导航），清理旧实例
+        translationManager.destroy();
+        translationManager = null;
+        lastInput = null;
+        lastVisible = false;
+      }
+    }, 500);
+  });
+
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['style', 'class', 'hidden'],
+  });
+}
+
+// 页面加载完成后初始化
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initTranslation();
+    // 总是启动观察器，支持 SPA 导航
+    observeSearchInput();
+  });
+} else {
+  initTranslation();
+  // 总是启动观察器，支持 SPA 导航
+  observeSearchInput();
+}
+
+// 监听来自 background 的消息
+chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  if (message.type === 'TOGGLE_TRANSLATION') {
+    if (translationManager) {
+      translationManager.setEnabled(message.payload.enabled);
+      sendResponse({ success: true });
+    } else {
+      sendResponse({ success: false, error: 'Not initialized' });
+    }
+  }
+
+  return true;
+});
+
+// 原有的示例代码保留(可选)
 // Listen for messages from popup or background
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  console.log('Message received in content script:', message)
-
   if (message.type === 'GREETING') {
-    console.log('Greeting message:', message.payload)
-
     // Show a notification on the page
     showNotification(message.payload.message)
 
@@ -67,17 +173,7 @@ chrome.runtime.sendMessage(
     type: 'PAGE_LOADED',
     payload: { url: window.location.href },
   },
-  (response) => {
-    if (response) {
-      console.log('Response from background:', response)
-    }
+  () => {
+    // Silent - no logging needed
   }
 )
-
-// Example: Observe DOM changes (if needed)
-// Uncomment to use:
-// const observer = new MutationObserver((_mutations) => {
-//   // Handle DOM changes here
-//   console.log('DOM changed')
-// })
-// observer.observe(document.body, { childList: true, subtree: true })

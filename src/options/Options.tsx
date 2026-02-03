@@ -1,10 +1,23 @@
 import { useState, useEffect } from 'react'
 import './options.css'
+import { getCacheStats, clearAllCache } from '../utils/cache'
 
 interface Settings {
   enableNotifications: boolean
   autoStart: boolean
   theme: 'light' | 'dark'
+  translationEnabled: boolean
+  enabledSites: {
+    google: boolean
+    baidu: boolean
+    bing: boolean
+    github: boolean
+  }
+}
+
+interface CacheStats {
+  count: number
+  size: number
 }
 
 function Options() {
@@ -12,8 +25,17 @@ function Options() {
     enableNotifications: true,
     autoStart: false,
     theme: 'light',
+    translationEnabled: true,
+    enabledSites: {
+      google: true,
+      baidu: true,
+      bing: true,
+      github: true,
+    },
   })
   const [saved, setSaved] = useState(false)
+  const [cacheStats, setCacheStats] = useState<CacheStats>({ count: 0, size: 0 })
+  const [cacheCleared, setCacheCleared] = useState(false)
 
   useEffect(() => {
     // Load settings from storage
@@ -22,12 +44,45 @@ function Options() {
         setSettings(result.settings as Settings)
       }
     })
+
+    // Load translation settings from sync storage
+    chrome.storage.sync.get(['translationEnabled', 'enabledSites'], (result) => {
+      if (result.translationEnabled !== undefined || result.enabledSites) {
+        setSettings((prev) => ({
+          ...prev,
+          translationEnabled: typeof result.translationEnabled === 'boolean' 
+            ? result.translationEnabled 
+            : prev.translationEnabled,
+          enabledSites: result.enabledSites 
+            ? (result.enabledSites as typeof prev.enabledSites)
+            : prev.enabledSites,
+        }))
+      }
+    })
+
+    // Load cache stats
+    updateCacheStats()
   }, [])
 
+  const updateCacheStats = () => {
+    const stats = getCacheStats()
+    setCacheStats(stats)
+  }
+
   const handleSave = () => {
+    // Save general settings to local storage
     chrome.storage.local.set({ settings }, () => {
-      setSaved(true)
-      setTimeout(() => setSaved(false), 2000)
+      // Save translation settings to sync storage
+      chrome.storage.sync.set(
+        {
+          translationEnabled: settings.translationEnabled,
+          enabledSites: settings.enabledSites,
+        },
+        () => {
+          setSaved(true)
+          setTimeout(() => setSaved(false), 2000)
+        }
+      )
     })
   }
 
@@ -36,9 +91,37 @@ function Options() {
       enableNotifications: true,
       autoStart: false,
       theme: 'light',
+      translationEnabled: true,
+      enabledSites: {
+        google: true,
+        baidu: true,
+        bing: true,
+        github: true,
+      },
     }
     setSettings(defaultSettings)
     chrome.storage.local.set({ settings: defaultSettings })
+    chrome.storage.sync.set({
+      translationEnabled: defaultSettings.translationEnabled,
+      enabledSites: defaultSettings.enabledSites,
+    })
+  }
+
+  const handleClearCache = () => {
+    if (confirm('确定要清空所有翻译缓存吗?')) {
+      clearAllCache()
+      updateCacheStats()
+      setCacheCleared(true)
+      setTimeout(() => setCacheCleared(false), 2000)
+    }
+  }
+
+  const formatBytes = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes'
+    const k = 1024
+    const sizes = ['Bytes', 'KB', 'MB']
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
   }
 
   return (
@@ -49,6 +132,109 @@ function Options() {
       </header>
 
       <main>
+        <section className="settings-section">
+          <h2>Translation Settings</h2>
+
+          <div className="setting-item">
+            <label>
+              <input
+                type="checkbox"
+                checked={settings.translationEnabled}
+                onChange={(e) =>
+                  setSettings({ ...settings, translationEnabled: e.target.checked })
+                }
+              />
+              <span>Enable Translation</span>
+            </label>
+            <p className="setting-description">
+              Enable real-time translation suggestions in search boxes
+            </p>
+          </div>
+
+          <div className="setting-item">
+            <label>Enabled Search Engines</label>
+            <div className="checkbox-group">
+              <label>
+                <input
+                  type="checkbox"
+                  checked={settings.enabledSites.google}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      enabledSites: { ...settings.enabledSites, google: e.target.checked },
+                    })
+                  }
+                />
+                <span>Google</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={settings.enabledSites.baidu}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      enabledSites: { ...settings.enabledSites, baidu: e.target.checked },
+                    })
+                  }
+                />
+                <span>Baidu</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={settings.enabledSites.bing}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      enabledSites: { ...settings.enabledSites, bing: e.target.checked },
+                    })
+                  }
+                />
+                <span>Bing</span>
+              </label>
+              <label>
+                <input
+                  type="checkbox"
+                  checked={settings.enabledSites.github}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      enabledSites: { ...settings.enabledSites, github: e.target.checked },
+                    })
+                  }
+                />
+                <span>GitHub</span>
+              </label>
+            </div>
+            <p className="setting-description">
+              Select which search engines should have translation enabled
+            </p>
+          </div>
+        </section>
+
+        <section className="settings-section">
+          <h2>Translation Cache</h2>
+
+          <div className="setting-item">
+            <div className="cache-stats">
+              <p>
+                <strong>Cached Translations:</strong> {cacheStats.count}
+              </p>
+              <p>
+                <strong>Cache Size:</strong> {formatBytes(cacheStats.size)}
+              </p>
+            </div>
+            <button className="btn-secondary" onClick={handleClearCache}>
+              {cacheCleared ? '✓ Cache Cleared!' : 'Clear Cache'}
+            </button>
+            <p className="setting-description">
+              Clear all cached translation results. Cache helps improve performance and reduce API
+              calls.
+            </p>
+          </div>
+        </section>
+
         <section className="settings-section">
           <h2>General</h2>
 
@@ -113,7 +299,7 @@ function Options() {
       </main>
 
       <footer>
-        <p>Demumu Chrome Extension v{chrome.runtime.getManifest().version}</p>
+        <p>Smart Search Translate v{chrome.runtime.getManifest().version}</p>
       </footer>
     </div>
   )

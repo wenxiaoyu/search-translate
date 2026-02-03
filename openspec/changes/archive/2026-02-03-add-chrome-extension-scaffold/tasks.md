@@ -156,7 +156,7 @@
   - 验证 zip 包内容
   - _Requirements: chrome-extension-scaffold/生产构建, ci-cd-pipeline/构建产物管理_
 
-- [ ] 6.3 CI/CD 流水线测试
+- [x] 6.3 CI/CD 流水线测试
   - 推送代码触发 CI
   - 验证所有检查通过
   - 创建测试标签验证发布流程（可选）

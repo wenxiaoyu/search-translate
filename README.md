@@ -1,29 +1,64 @@
-# Demumu Chrome Extension
+# Search Translate - Chrome Extension
 
-A modern Chrome extension built with TypeScript, React, and Vite.
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Web%20Store-blue?logo=google-chrome)](https://chrome.google.com/webstore)
+[![Version](https://img.shields.io/badge/version-0.2.0-green.svg)](https://github.com/wenxiaoyu/search-translate)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-## Features
+A Chrome extension that provides real-time translation suggestions for search engines, helping you search in English for better results.
 
-- 🚀 **Fast Development**: Powered by Vite for instant HMR
-- 📦 **TypeScript**: Full type safety with TypeScript
-- ⚛️ **React**: Modern React 18 with hooks
-- 🎨 **Beautiful UI**: Gradient design with smooth animations
-- 🔧 **Manifest V3**: Uses the latest Chrome Extension API
-- 🤖 **CI/CD**: Automated testing and deployment with GitHub Actions
+## ✨ Features
 
-## Project Structure
+- 🌐 **Real-time Translation**: Automatically translates Chinese input to English as you type
+- 🔍 **Multi-Engine Support**: Works on Google, Baidu, Bing, GitHub, and Stack Overflow
+- ⚡ **Smart Caching**: Caches translations locally for instant results
+- 🎯 **One-Click Search**: Click to fill and search automatically
+- 📋 **Copy Support**: Copy translations to clipboard
+- 🎨 **Beautiful Design**: Glass-morphism UI with dark mode support
+- ⚙️ **Customizable**: Configure which search engines to enable
+- 🚀 **Performance Optimized**: Debouncing and caching for smooth experience
+- 🔒 **Privacy First**: All data stored locally, no tracking
 
-```
-src/
-├── background/     # Background service worker
-├── content/        # Content scripts injected into web pages
-├── popup/          # Extension popup UI (React)
-├── options/        # Options/settings page (React)
-├── icons/          # Extension icons
-└── manifest.json   # Extension manifest (V3)
-```
+## 🎯 Use Case
 
-## Development
+When searching for technical content, English keywords often yield better results than Chinese. This extension helps you:
+
+1. Type your search query in Chinese
+2. Get instant English translation suggestions
+3. Click to fill and search automatically
+4. Get more accurate and comprehensive search results
+
+## 🚀 Quick Start
+
+### For Users
+
+1. **Install from Chrome Web Store** (coming soon)
+   - Or load unpacked from `dist` folder for development
+
+2. **Visit any supported search engine**
+   - Google, Baidu, Bing, GitHub, Stack Overflow
+
+3. **Start typing in Chinese**
+   - Translation suggestions appear automatically
+
+4. **Click to search**
+   - Click the translation to fill and search
+   - Or copy to clipboard
+
+## 📦 Installation
+
+### From Chrome Web Store (Recommended)
+Coming soon! The extension is currently under review.
+
+### Manual Installation (Development)
+
+1. Download or clone this repository
+2. Run `npm install` and `npm run build`
+3. Open Chrome and go to `chrome://extensions/`
+4. Enable "Developer mode"
+5. Click "Load unpacked"
+6. Select the `dist` folder
+
+## 🛠️ For Developers
 
 ### Prerequisites
 
@@ -35,8 +70,8 @@ src/
 1. Clone the repository:
 
 ```bash
-git clone <your-repo-url>
-cd demumu-chrome-plug
+git clone https://github.com/wenxiaoyu/search-translate.git
+cd search-translate
 ```
 
 2. Install dependencies:
@@ -57,7 +92,7 @@ pnpm dev
    - Click "Load unpacked"
    - Select the `dist` folder
 
-### Available Scripts
+#### Available Scripts
 
 - `pnpm dev` - Start development server with hot reload
 - `pnpm build` - Build for production
@@ -65,94 +100,119 @@ pnpm dev
 - `pnpm format` - Format code with Prettier
 - `pnpm type-check` - Run TypeScript type checking
 
-## Building for Production
+## 📁 Project Structure
+
+```
+src/
+├── background/          # Background service worker
+│   └── index.ts        # Translation API calls and caching
+├── content/            # Content scripts
+│   ├── adapters/       # Search engine adapters
+│   │   ├── GoogleAdapter.ts
+│   │   ├── BaiduAdapter.ts
+│   │   ├── BingAdapter.ts
+│   │   ├── GitHubAdapter.ts
+│   │   └── StackOverflowAdapter.ts
+│   ├── ui/             # UI components
+│   │   └── TranslationSuggestion.ts
+│   ├── TranslationManager.ts
+│   └── index.ts
+├── popup/              # Extension popup UI (React)
+├── options/            # Options/settings page (React)
+├── utils/              # Utility functions
+│   ├── translationApi.ts
+│   ├── cache.ts
+│   ├── debounce.ts
+│   └── languageDetector.ts
+└── manifest.json       # Extension manifest (V3)
+```
+
+## 🔧 Technical Details
+
+### Architecture
+
+- **Manifest V3**: Fully compliant with Chrome's latest extension API
+- **Service Worker**: Background processing for API calls
+- **Content Scripts**: Injected into search engine pages
+- **Adapter Pattern**: Easy to add support for new search engines
+- **Shadow DOM**: Style isolation for UI components
+
+### Translation API
+
+Uses [MyMemory Translation API](https://mymemory.translated.net):
+- Free tier: 1000 calls/day
+- No API key required
+- Good translation quality
+
+### Performance Optimizations
+
+- **Debouncing**: 500ms delay to reduce API calls
+- **Caching**: 30-day local cache with LRU eviction
+- **Language Detection**: Only translates Chinese input
+- **Minimum Length**: Requires at least 2 characters
+
+### Privacy & Security
+
+- ✅ **No Data Collection**: We don't collect any personal data
+- ✅ **Local Storage**: All data stored in your browser
+- ✅ **No Tracking**: No analytics or tracking scripts
+- ✅ **CSP Compliant**: Strict Content Security Policy
+- ✅ **Minimal Permissions**: Only requests necessary permissions
+
+See [PRIVACY_POLICY.md](PRIVACY_POLICY.md) for details.
+
+## 🌐 Supported Search Engines
+
+- ✅ Google (google.com, google.com.hk)
+- ✅ Baidu (baidu.com)
+- ✅ Bing (bing.com)
+- ✅ GitHub (github.com)
+- ✅ Stack Overflow (stackoverflow.com, stackexchange.com)
+
+Want to add more? Check out the [adapter pattern](src/content/adapters/) - it's easy to extend!
+
+## 📦 Building for Production
 
 ```bash
 pnpm build
 ```
 
-This will create an optimized build in the `dist` folder. You can then:
+This creates an optimized build in the `dist` folder.
 
-1. Zip the `dist` folder
-2. Upload to Chrome Web Store
+### Publishing to Chrome Web Store
 
-## CI/CD
+See [docs/WEB_STORE_CHECKLIST.md](docs/WEB_STORE_CHECKLIST.md) for the complete checklist.
 
-This project uses GitHub Actions for automated CI/CD:
+## 🤖 CI/CD
 
-- **CI Pipeline**: Runs on every push and PR
-  - Installs dependencies
-  - Runs linting and type checking
-  - Builds the extension
+GitHub Actions workflows:
 
-- **Release Pipeline**: Triggered by version tags (e.g., `v1.0.0`)
-  - Builds production version
-  - Creates zip package
-  - Uploads to Chrome Web Store (requires setup)
-  - Creates GitHub Release
+- **CI Pipeline** (`ci.yml`): Runs on every push/PR
+  - Linting and type checking
+  - Build verification
 
-### Setting up Chrome Web Store Auto-Publish
+- **Release Pipeline** (`release.yml`): Triggered by version tags
+  - Production build
+  - Zip package creation
+  - Chrome Web Store upload
+  - GitHub Release creation
 
-To enable automatic publishing to Chrome Web Store, you need to:
-
-1. **Get Chrome Web Store API Credentials**:
-   - Go to [Google Cloud Console](https://console.cloud.google.com/)
-   - Create a new project or select existing one
-   - Enable Chrome Web Store API
-   - Create OAuth 2.0 credentials
-   - Get your `CLIENT_ID` and `CLIENT_SECRET`
-
-2. **Get Refresh Token**:
-   - Use [OAuth 2.0 Playground](https://developers.google.com/oauthplayground/)
-   - Configure with your credentials
-   - Authorize Chrome Web Store API
-   - Exchange authorization code for refresh token
-
-3. **Get Extension ID**:
-   - Upload your extension to Chrome Web Store (first time manually)
-   - Find your extension ID in the Developer Dashboard
-
-4. **Add GitHub Secrets**:
-   Go to your repository Settings → Secrets and add:
-   - `CHROME_CLIENT_ID`
-   - `CHROME_CLIENT_SECRET`
-   - `CHROME_REFRESH_TOKEN`
-   - `CHROME_EXTENSION_ID`
-
-5. **Create a Release**:
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-
-## Tech Stack
+## 🛠️ Tech Stack
 
 - **Frontend**: React 18, TypeScript
 - **Build Tool**: Vite 5
 - **Package Manager**: pnpm
-- **Code Quality**: ESLint, Prettier, Husky
+- **Code Quality**: ESLint 9, Prettier, Husky
 - **CI/CD**: GitHub Actions
 - **Chrome API**: Manifest V3
 
-## Architecture
+## 📝 License
 
-### Message Passing
+MIT License - see [LICENSE](LICENSE) file for details.
 
-The extension uses Chrome's message passing API for communication:
+## 🤝 Contributing
 
-```
-Popup ←→ Background Worker ←→ Content Script
-```
-
-- **Popup**: User interface, sends messages to background/content
-- **Background**: Service worker, handles extension logic
-- **Content Script**: Runs in web pages, can manipulate DOM
-
-### Storage
-
-Uses `chrome.storage.local` for persistent data storage across sessions.
-
-## Contributing
+Contributions are welcome! Please read our contributing guidelines before submitting PRs.
 
 1. Fork the repository
 2. Create your feature branch (`git checkout -b feature/amazing-feature`)
@@ -160,13 +220,18 @@ Uses `chrome.storage.local` for persistent data storage across sessions.
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
-
-MIT License - see LICENSE file for details
-
-## Resources
+## 📚 Resources
 
 - [Chrome Extension Documentation](https://developer.chrome.com/docs/extensions/)
-- [Manifest V3 Migration Guide](https://developer.chrome.com/docs/extensions/mv3/intro/)
-- [Vite Documentation](https://vitejs.dev/)
-- [React Documentation](https://react.dev/)
+- [Manifest V3 Guide](https://developer.chrome.com/docs/extensions/mv3/intro/)
+- [MyMemory Translation API](https://mymemory.translated.net/doc/spec.php)
+- [OpenSpec Documentation](openspec/project.md)
+
+## 🙏 Acknowledgments
+
+- Translation powered by [MyMemory](https://mymemory.translated.net)
+- Built with [Vite](https://vitejs.dev/) and [React](https://react.dev/)
+
+---
+
+**Note**: This extension is designed to help users get better search results by providing English translations. It does not modify search results or inject ads.

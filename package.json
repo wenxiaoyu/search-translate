@@ -1,7 +1,7 @@
 {
-  "name": "demumu-chrome-extension",
-  "version": "0.1.1",
-  "description": "A modern Chrome extension built with TypeScript and React",
+  "name": "search-translate",
+  "version": "0.2.0",
+  "description": "Real-time translation suggestions for search engines - translate Chinese to English for better search results",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,14 +10,20 @@
     "lint": "eslint . --ext .ts,.tsx",
     "format": "prettier --write \"src/**/*.{ts,tsx,json,css}\"",
     "type-check": "tsc --noEmit",
-    "prepare": "husky"
+    "prepare": "husky",
+    "icons:generate": "node scripts/generate-icons.js",
+    "icons:convert": "node scripts/convert-svg-to-png.js",
+    "icons:generate-png": "node scripts/generate-png-icons.js"
   },
   "keywords": [
     "chrome-extension",
     "browser-extension",
     "typescript",
     "react",
-    "vite"
+    "vite",
+    "translation",
+    "search",
+    "chinese-to-english"
   ],
   "author": "wenxy",
   "license": "MIT",
@@ -37,6 +43,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
     "prettier": "^3.8.0",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-web-extension": "^4.5.0"
