@@ -211,9 +211,77 @@ See: PRIVACY_POLICY.md
 Reason: Store user preferences and translation cache locally for better performance
 ```
 
+**Detailed Explanation:**
+```
+The storage permission is required to:
+1. Cache translation results locally for faster performance and reduced API calls
+2. Store user preferences (enable/disable settings, preferred search engines)
+3. Save usage statistics (translation count, search count) for display in the popup
+
+All data is stored locally on the user's device. No data is transmitted to external servers or third parties.
+```
+
 ### Host Permissions
 ```
 Reason: Access search engine pages to inject translation functionality and call translation APIs
+```
+
+**Search Engine Hosts:**
+```
+*://*.google.com/*
+*://*.google.com.hk/*
+*://*.baidu.com/*
+*://*.bing.com/*
+*://github.com/*
+*://*.stackoverflow.com/*
+*://*.stackexchange.com/*
+```
+
+**Justification:**
+```
+Host permissions for search engine domains are required to:
+1. Inject the translation suggestion UI into search engine pages
+2. Detect when users type in search boxes on these sites
+3. Display translation suggestions in real-time
+4. Enable one-click search functionality
+
+These permissions are essential for the extension's core functionality. The extension only activates on these specific search engine domains.
+```
+
+**Translation API Hosts:**
+```
+https://api.mymemory.translated.net/*
+https://fanyi.baidu.com/*
+```
+
+**Justification:**
+```
+Host permissions for translation API domains are required to:
+1. Send text to translation services for Chinese-to-English translation
+2. Receive translation results from these APIs
+3. Provide the core translation functionality
+
+These are public translation APIs. The extension only sends the search query text (no personal information) to these services.
+```
+
+---
+
+## Single Purpose Statement
+
+**Single Purpose:**
+```
+This extension serves a single purpose: to provide real-time translation suggestions from Chinese to English on search engine pages, helping users search more effectively.
+```
+
+**Detailed Explanation:**
+```
+Search Translate is designed exclusively to enhance the search experience by automatically translating Chinese search queries into English. The extension:
+
+1. Detects when users type Chinese text in search boxes
+2. Provides instant English translation suggestions
+3. Allows users to click the translation to automatically search
+
+All functionality is focused on this single purpose: facilitating better search results through real-time translation. The extension does not collect user data, display ads, or perform any other functions beyond translation assistance for search queries.
 ```
 
 ---
